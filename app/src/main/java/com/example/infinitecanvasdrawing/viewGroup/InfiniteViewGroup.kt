@@ -3,15 +3,13 @@ package com.example.infinitecanvasdrawing.viewGroup
 import android.content.Context
 import android.graphics.*
 import android.util.Log
-import android.view.Gravity
 import android.view.MotionEvent
-import android.view.View
 import android.widget.FrameLayout
 
 class InfiniteViewGroup(context: Context) : FrameLayout(context) {
 
-    private val screenWidth = context.resources.displayMetrics.widthPixels
-    private val screenHeight = context.resources.displayMetrics.heightPixels
+    private var displayWidth = -1
+    private var displayHeight = -1
 
     private var visibleLeft = 0f
     private var visibleTop = 0f
@@ -23,7 +21,6 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
     private var previousEventY = 0f
 
     private val paint = Paint()
-    private val listOfRect = arrayListOf<RectF>()
 
     init {
         paint.color = Color.RED
@@ -31,32 +28,36 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
         paint.strokeWidth = 5f
         paint.isAntiAlias = true
         paint.isDither = true
-        layoutParams = LayoutParams(Int.MAX_VALUE, Int.MAX_VALUE)
+        layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
 //        (layoutParams as LayoutParams).gravity = Gravity.CENTER
-        listOfRect.add(RectF(0f, 0f, Int.MAX_VALUE / 1f, Int.MAX_VALUE / 1f))
+        setBackgroundColor(Color.argb(125, 200, 25, 11))
         translationX = 0f
         translationY = 0f
         setBackgroundColor(Color.TRANSPARENT)
+//        post { layoutParams = LayoutParams(MaxViewDrawingInt.MAX_WIDTH, MaxViewDrawingInt.MAX_HEIGHT) }
     }
 
     override fun onDraw(canvas: Canvas) {
         Log.d("manideep", "onDraw")
-        drawSquareBoundaries(canvas, this.listOfRect)
+        drawBoundaries(canvas)
     }
 
-    private fun drawSquareBoundaries(canvas: Canvas, listOfRectF: List<RectF>) {
-        listOfRectF.forEach {
-            val path = Path()
-            path.moveTo(it.left, it.top)
-            path.lineTo(it.left, it.right)
-            path.lineTo(it.bottom, it.right)
-            path.lineTo(it.left, it.bottom)
-            path.close()
-            canvas.drawPath(path, paint)
-            canvas.drawLine(0f, 0f, width.toFloat(), height.toFloat(), paint)
+    private fun drawBoundaries(canvas: Canvas) {
+        canvas.drawLine(0f, 0f, width.toFloat(), 0f, paint)
+        canvas.drawLine(width.toFloat(), 0f, width.toFloat(), height.toFloat(), paint)
+        canvas.drawLine(width.toFloat(), height.toFloat(), 0f, height.toFloat(), paint)
+        canvas.drawLine(0f, height.toFloat(), 0f, 0f, paint)
+        canvas.drawLine(0f, 0f, width.toFloat(), height.toFloat(), paint)
+
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (displayWidth == -1 && displayHeight == -1) {
+            displayWidth = width
+            displayHeight = height
         }
     }
-
 
     private fun updateLayoutParams() {
 
@@ -94,24 +95,26 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
 
     private fun handleActionMove(diffX: Float, diffY: Float) {
         translationX += diffX
-        visibleLeft -= diffX
-
         translationY += diffY
-        visibleTop -= diffY
     }
 
     private fun handleActionUp() {
-        if (visibleLeft < actualLeft) {
-            visibleLeft = 0f
-            actualLeft = 0f
-            val matrix = matrix
+        if (translationX > 0) {
+            translationX = 0f
+        } else if (translationX + width < displayWidth) {
+            translationX = displayWidth - width.toFloat()
         }
-
-        if (visibleTop < actualTop) {
-            visibleTop = 0f
-            actualTop = 0f
-
+        if (translationY > 0) {
+            translationY = 0f
+        } else if (translationY + height < displayHeight) {
+            translationY = displayHeight - height.toFloat()
         }
+    }
+
+
+    object MaxViewDrawingInt {
+        internal const val MAX_WIDTH = 16777215
+        internal const val MAX_HEIGHT = 16777215
     }
 
 
