@@ -31,9 +31,9 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
         paint.strokeWidth = 5f
         paint.isAntiAlias = true
         paint.isDither = true
-        layoutParams = LayoutParams(Int.MAX_VALUE,Int.MAX_VALUE)
+        layoutParams = LayoutParams(Int.MAX_VALUE, Int.MAX_VALUE)
 //        (layoutParams as LayoutParams).gravity = Gravity.CENTER
-        listOfRect.add(RectF(0f, 0f, Int.MAX_VALUE/1f, Int.MAX_VALUE/1f))
+        listOfRect.add(RectF(0f, 0f, Int.MAX_VALUE / 1f, Int.MAX_VALUE / 1f))
         translationX = 0f
         translationY = 0f
         setBackgroundColor(Color.TRANSPARENT)
@@ -64,22 +64,31 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
 
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        Log.d("manideep", "onTouchEvent")
-        val diffX = event.rawX - previousEventX
-        val diffY = event.rawY - previousEventY
+        Log.d("manideep", "onTouchEvent -> count : ${event.pointerCount}, actionIndex: ${event.actionIndex}, rawX: ${event.rawX}, rawY: ${event.rawY}, actionMasked: ${event.actionMasked}")
         when (event.actionMasked) {
             MotionEvent.ACTION_MOVE -> {
-                Log.d("manideep", " ActionMove : ${event.actionIndex}")
+                val diffX = event.rawX - previousEventX
+                val diffY = event.rawY - previousEventY
+//                Log.d("manideep", " Action_Move : ${event.actionIndex}")
                 handleActionMove(diffX, diffY)
+                previousEventX = event.rawX
+                previousEventY = event.rawY
             }
 
             MotionEvent.ACTION_UP -> {
-                Log.d("manideep", "ActionUp: ${event.actionIndex}")
+                Log.d("manideep", "Action_Up: ${event.actionIndex}")
                 handleActionUp()
             }
+
+            MotionEvent.ACTION_DOWN -> {
+                Log.d("manideep", "Action_Down: ${event.actionIndex}, rawX: ${event.rawX}, rawY: ${event.rawY}")
+                previousEventX = event.rawX
+                previousEventY = event.rawY
+            }
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                Log.d("manideep", "Action_Pointer_Down: ${event.actionIndex}, rawX: ${event.rawX}, rawY: ${event.rawY}")
+            }
         }
-        previousEventX = event.rawX
-        previousEventY = event.rawY
         return true
     }
 
