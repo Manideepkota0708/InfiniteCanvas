@@ -1,20 +1,14 @@
-package com.example.infinitecanvasdrawing.infiniteViewGroup
+package com.example.infinitecanvasdrawing.viewGroup
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.RelativeLayout
-import androidx.core.graphics.transform
 
-class InfiniteViewGroup(context: Context) : View(context) {
+class InfiniteViewGroup(context: Context) : FrameLayout(context) {
 
     private val screenWidth = context.resources.displayMetrics.widthPixels
     private val screenHeight = context.resources.displayMetrics.heightPixels
@@ -37,11 +31,12 @@ class InfiniteViewGroup(context: Context) : View(context) {
         paint.strokeWidth = 5f
         paint.isAntiAlias = true
         paint.isDither = true
-        layoutParams = FrameLayout.LayoutParams((Int.MAX_VALUE).toInt(), (Int.MAX_VALUE).toInt())
-        (layoutParams as FrameLayout.LayoutParams).gravity = Gravity.CENTER
+        layoutParams = LayoutParams(Int.MAX_VALUE,Int.MAX_VALUE)
+//        (layoutParams as LayoutParams).gravity = Gravity.CENTER
         listOfRect.add(RectF(0f, 0f, Int.MAX_VALUE/1f, Int.MAX_VALUE/1f))
         translationX = 0f
         translationY = 0f
+        setBackgroundColor(Color.TRANSPARENT)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -51,7 +46,13 @@ class InfiniteViewGroup(context: Context) : View(context) {
 
     private fun drawSquareBoundaries(canvas: Canvas, listOfRectF: List<RectF>) {
         listOfRectF.forEach {
-            canvas.drawRect(it, paint)
+            val path = Path()
+            path.moveTo(it.left, it.top)
+            path.lineTo(it.left, it.right)
+            path.lineTo(it.bottom, it.right)
+            path.lineTo(it.left, it.bottom)
+            path.close()
+            canvas.drawPath(path, paint)
             canvas.drawLine(0f, 0f, width.toFloat(), height.toFloat(), paint)
         }
     }
