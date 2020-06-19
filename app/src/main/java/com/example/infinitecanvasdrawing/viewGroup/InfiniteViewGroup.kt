@@ -3,6 +3,7 @@ package com.example.infinitecanvasdrawing.viewGroup
 import android.content.Context
 import android.graphics.*
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -12,6 +13,7 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
 
     private val screenWidth = context.resources.displayMetrics.widthPixels
     private val screenHeight = context.resources.displayMetrics.heightPixels
+    private val padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, context.resources.displayMetrics)
 
     private var visibleLeft = 0f
     private var visibleTop = 0f
@@ -31,11 +33,11 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
         paint.strokeWidth = 5f
         paint.isAntiAlias = true
         paint.isDither = true
-        layoutParams = LayoutParams(Int.MAX_VALUE, Int.MAX_VALUE)
+        layoutParams = LayoutParams((Int.MAX_VALUE - 2 * padding).toInt(), (Int.MAX_VALUE - 2 * padding).toInt())
 //        (layoutParams as LayoutParams).gravity = Gravity.CENTER
         listOfRect.add(RectF(0f, 0f, Int.MAX_VALUE / 1f, Int.MAX_VALUE / 1f))
-        translationX = 0f
-        translationY = 0f
+        translationX = -padding
+        translationY = -padding
         setBackgroundColor(Color.TRANSPARENT)
     }
 
@@ -46,14 +48,11 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
 
     private fun drawSquareBoundaries(canvas: Canvas, listOfRectF: List<RectF>) {
         listOfRectF.forEach {
-            val path = Path()
-            path.moveTo(it.left, it.top)
-            path.lineTo(it.left, it.right)
-            path.lineTo(it.bottom, it.right)
-            path.lineTo(it.left, it.bottom)
-            path.close()
-            canvas.drawPath(path, paint)
-            canvas.drawLine(0f, 0f, width.toFloat(), height.toFloat(), paint)
+            canvas.drawLine(padding, padding, padding + width.toFloat(), padding, paint)
+            canvas.drawLine(padding + width, 0f, padding + width, padding + height, paint)
+            canvas.drawLine(padding + width, padding + height, 0f, padding + height, paint)
+            canvas.drawLine(padding, padding + height, padding, padding, paint)
+            canvas.drawLine(padding, padding, padding + width, padding + height, paint)
         }
     }
 
