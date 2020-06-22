@@ -35,9 +35,7 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
         paint.isDither = true
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
 //        (layoutParams as LayoutParams).gravity = Gravity.CENTER
-        setBackgroundColor(Color.argb(125, 200, 25, 11))
-        translationX = 0f
-        translationY = 0f
+//        setBackgroundColor(Color.argb(125, 200, 25, 11))
         setBackgroundColor(Color.TRANSPARENT)
 //        post { layoutParams = LayoutParams(MaxViewDrawingInt.MAX_WIDTH, MaxViewDrawingInt.MAX_HEIGHT) }
     }
