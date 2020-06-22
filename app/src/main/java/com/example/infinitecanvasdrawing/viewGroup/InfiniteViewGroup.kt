@@ -3,20 +3,19 @@ package com.example.infinitecanvasdrawing.viewGroup
 import android.content.Context
 import android.graphics.*
 import android.util.Log
-import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import com.example.infinitecanvasdrawing.utils.MathUtil
 
 class InfiniteViewGroup(context: Context) : FrameLayout(context) {
 
     private var displayWidth = -1
     private var displayHeight = -1
 
+
     private var visibleLeft = 0f
     private var visibleTop = 0f
-    private var actualLeft = 0f
-    private var actualTop = 0f
+    private var visibleWidth = 0f
+    private var visibleHeight = 0f
 
     private val paint = Paint()
 
@@ -33,25 +32,54 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
             override fun performTranslation(diffX: Float, diffY: Float) {
                 translationX += diffX
                 translationY += diffY
+                visibleLeft += diffX
+                visibleTop += diffY
             }
 
             override fun performActionUp() {
-                if (translationX > 0) {
+
+                val left = translationX + (1 - scaleX) * pivotX
+                val top = translationY + (1 - scaleY) * pivotY
+                val width = width * scaleX
+                val height = height * scaleY
+                val right = left + width
+                val bottom = top + height
+                if (width <= displayWidth) {
                     translationX = 0f
-                } else if (translationX + width < displayWidth) {
-                    translationX = displayWidth - width.toFloat()
+                } else {
+                    if (left > 0) {
+                        translationX = (scaleX - 1) * pivotX
+                    } else if (right < displayWidth) {
+                        translationX = displayWidth + (scaleX - 1) * pivotX - width
+                    }
                 }
-                if (translationY > 0) {
+
+                if (height <= displayHeight) {
                     translationY = 0f
-                } else if (translationY + height < displayHeight) {
-                    translationY = displayHeight - height.toFloat()
+                } else {
+                    if (top > 0) {
+                        translationY = (scaleY - 1) * pivotY
+                    } else if (bottom < displayHeight) {
+                        translationY = displayHeight + (scaleY - 1) * pivotY - height
+                    }
                 }
             }
 
-            override fun performActionZoom(scaleX: Float, scaleY: Float, pivotX: Float, pivotY: Float) {
+            override fun performActionZoom(
+                scaleX: Float,
+                scaleY: Float,
+                pivotX: Float,
+                pivotY: Float
+            ) {
                 this@InfiniteViewGroup.scaleX = scaleX
                 this@InfiniteViewGroup.scaleY = scaleY
-                Log.d("manideep", "transX: $translationX, transY: $translationY")
+//                this@InfiniteViewGroup.pivotX = 0f
+//                this@InfiniteViewGroup.pivotY = 0f
+                Log.d(
+                    "manideep",
+                    "transX: $translationX, transY: $translationY, pivotX: ${this@InfiniteViewGroup.pivotX}, pivotY: ${this@InfiniteViewGroup.pivotY} "
+                )
+                Log.d("manideep", "left: $left, top: $top, width: $width, height: $height")
             }
         }
         post {

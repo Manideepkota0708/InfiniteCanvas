@@ -56,6 +56,7 @@ internal class GestureEditingViewGroup(context: Context, private val gestureEdit
                         val newScale = newDistance / initialZoomDistance
                         Log.d("manideep", "p1: $firstPoint, p2: $secondPoint, newScale: $newScale")
                         gestureEditingListener?.performActionZoom(newScale, newScale, midPoint.x, midPoint.y)
+                        previousScale = newScale
                     }
                 }
 
