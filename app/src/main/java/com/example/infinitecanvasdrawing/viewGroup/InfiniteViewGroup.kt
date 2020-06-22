@@ -5,6 +5,7 @@ import android.graphics.*
 import android.util.Log
 import android.view.MotionEvent
 import android.widget.FrameLayout
+import com.example.infinitecanvasdrawing.utils.MathUtil
 
 class InfiniteViewGroup(context: Context) : FrameLayout(context) {
 
@@ -17,8 +18,12 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
     private var actualTop = 0f
     private var isDragFinished = false
 
+    private lateinit var editMode: EditMode
+
     private var previousEventX = 0f
     private var previousEventY = 0f
+    private var previousScale = 1f
+    private var initialZoomDistance = 1f
 
     private val paint = Paint()
 
@@ -38,7 +43,7 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
     }
 
     override fun onDraw(canvas: Canvas) {
-        Log.d("manideep", "onDraw")
+//        Log.d("manideep", "onDraw")
         drawBoundaries(canvas)
     }
 
@@ -65,30 +70,65 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
 
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        Log.d("manideep", "onTouchEvent -> count : ${event.pointerCount}, actionIndex: ${event.actionIndex}, rawX: ${event.rawX}, rawY: ${event.rawY}, actionMasked: ${event.actionMasked}")
+//        Log.d(
+//            "manideep",
+//            "onTouchEvent -> count : ${event.pointerCount}, actionIndex: ${event.actionIndex}, rawX: ${event.rawX}, rawY: ${event.rawY}, actionMasked: ${event.actionMasked}"
+//        )
         when (event.actionMasked) {
-            MotionEvent.ACTION_MOVE -> {
-                val diffX = event.rawX - previousEventX
-                val diffY = event.rawY - previousEventY
-//                Log.d("manideep", " Action_Move : ${event.actionIndex}")
-                handleActionMove(diffX, diffY)
+
+            MotionEvent.ACTION_DOWN -> {
+//                Log.d(
+//                    "manideep",
+//                    "Action_Down: ${event.actionIndex}, rawX: ${event.rawX}, rawY: ${event.rawY}"
+//                )
                 previousEventX = event.rawX
                 previousEventY = event.rawY
+                editMode = EditMode.DRAG
+            }
+            MotionEvent.ACTION_MOVE -> {
+                when (editMode) {
+                    EditMode.DRAG -> {
+                        val diffX = event.rawX - previousEventX
+                        val diffY = event.rawY - previousEventY
+                        handleActionMove(diffX, diffY)
+                        previousEventX = event.rawX
+                        previousEventY = event.rawY
+                    }
+                    EditMode.ZOOM -> {
+                        // TODO
+                        val firstPoint = PointF(event.getRawX(0), event.getRawY(0))
+                        val secondPoint = PointF(event.getRawX(1), event.getRawY(1))
+                        handleActionZoom(firstPoint, secondPoint)
+                    }
+                }
+
             }
 
             MotionEvent.ACTION_UP -> {
-                Log.d("manideep", "Action_Up: ${event.actionIndex}")
+//                Log.d("manideep", "Action_Up: ${event.actionIndex}")
                 handleActionUp()
             }
-
-            MotionEvent.ACTION_DOWN -> {
-                Log.d("manideep", "Action_Down: ${event.actionIndex}, rawX: ${event.rawX}, rawY: ${event.rawY}")
-                previousEventX = event.rawX
-                previousEventY = event.rawY
-            }
             MotionEvent.ACTION_POINTER_DOWN -> {
-                Log.d("manideep", "Action_Pointer_Down: ${event.actionIndex}, rawX: ${event.rawX}, rawY: ${event.rawY}")
+//                Log.d(
+//                    "manideep",
+//                    "Action_Pointer_Down: ${event.actionIndex}, rawX: ${event.rawX}, rawY: ${event.rawY}"
+//                )
+                editMode = EditMode.ZOOM
+                if (event.pointerCount == 2) {
+                    initialZoomDistance = MathUtil.distanceBetweenPoints(event.getRawX(0), event.getRawY(0), event.getRawX(1), event.getRawY(1))
+                }
+
             }
+
+            MotionEvent.ACTION_POINTER_UP -> {
+                if (event.pointerCount == 2) {
+                    editMode = EditMode.DRAG
+                    previousEventX = event.rawX
+                    previousEventY = event.rawY
+
+                }
+            }
+
         }
         return true
     }
@@ -97,6 +137,17 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
         translationX += diffX
         translationY += diffY
     }
+
+    private fun handleActionZoom(p1: PointF, p2: PointF) {
+        val midPoint = MathUtil.getMidPoint(p1, p2)
+        val newDistance = MathUtil.distanceBetweenPoints(p1.x, p1.y, p2.x, p2.y)
+        val newScale = newDistance / initialZoomDistance
+        Log.d("manideep", "p1: $p1, p2: $p2, newScale: $newScale")
+//        scaleX = newScale
+//        scaleY = newScale
+
+    }
+
 
     private fun handleActionUp() {
         if (translationX > 0) {
@@ -111,6 +162,9 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
         }
     }
 
+    private enum class EditMode {
+        DRAG, ZOOM
+    }
 
     object MaxViewDrawingInt {
         internal const val MAX_WIDTH = 16777215
