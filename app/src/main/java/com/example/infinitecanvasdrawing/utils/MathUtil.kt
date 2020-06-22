@@ -6,7 +6,7 @@ import kotlin.math.sqrt
 
 object MathUtil {
 
-    fun getMidPoint(point1: PointF, point2: PointF): PointF? {
+    fun getMidPoint(point1: PointF, point2: PointF): PointF {
         val midPoint = PointF()
         midPoint.x = (point1.x + point2.x) / 2
         midPoint.y = (point1.y + point2.y) / 2
