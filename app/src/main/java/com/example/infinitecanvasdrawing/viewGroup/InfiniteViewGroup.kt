@@ -45,7 +45,7 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
                 val right = left + width
                 val bottom = top + height
                 if (width <= displayWidth) {
-                    translationX = 0f
+                    translationX = (scaleX - 1) * pivotX + (displayWidth - width) / 2
                 } else {
                     if (left > 0) {
                         translationX = (scaleX - 1) * pivotX
@@ -55,7 +55,7 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
                 }
 
                 if (height <= displayHeight) {
-                    translationY = 0f
+                    translationY = (scaleY - 1) * pivotY + (displayHeight - height) / 2
                 } else {
                     if (top > 0) {
                         translationY = (scaleY - 1) * pivotY
