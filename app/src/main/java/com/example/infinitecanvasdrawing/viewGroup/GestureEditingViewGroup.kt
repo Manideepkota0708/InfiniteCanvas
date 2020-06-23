@@ -60,13 +60,15 @@ internal class GestureEditingViewGroup(
                         )
                         val newScale = newDistance / initialZoomDistance
 //                        Log.d("manideep", "p1: $firstPoint, p2: $secondPoint, newScale: $newScale")
-                        gestureEditingListener?.performActionZoom(
-                            newScale,
-                            newScale,
-                            midPoint.x,
-                            midPoint.y
-                        )
-                        previousScale = newScale
+                        if (newScale != previousScale) {
+                            gestureEditingListener?.performActionZoom(
+                                newScale,
+                                newScale,
+                                midPoint.x,
+                                midPoint.y
+                            )
+                            previousScale = newScale
+                        }
                     }
                 }
 
@@ -112,5 +114,5 @@ internal interface GestureEditingListener {
 
     fun performActionUp()
 
-    fun performActionZoom(scaleX: Float, scaleY: Float, pivotX: Float, pivotY: Float)
+    fun performActionZoom(newScaleX: Float, newScaleY: Float, newPivotX: Float, newPivotY: Float)
 }

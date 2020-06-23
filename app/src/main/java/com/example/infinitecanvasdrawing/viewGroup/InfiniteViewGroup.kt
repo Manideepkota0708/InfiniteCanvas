@@ -34,7 +34,7 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
                 translationY += diffY
                 visibleLeft += diffX
                 visibleTop += diffY
-                Log.d("manideep","transX: $diffX, transY: $diffY")
+                Log.d("manideep", "transX: $diffX, transY: $diffY")
             }
 
             override fun performActionUp() {
@@ -67,15 +67,31 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
             }
 
             override fun performActionZoom(
-                scaleX: Float,
-                scaleY: Float,
-                pivotX: Float,
-                pivotY: Float
+                newScaleX: Float,
+                newScaleY: Float,
+                newPivotX: Float,
+                newPivotY: Float
             ) {
-                this@InfiniteViewGroup.scaleX = scaleX
-                this@InfiniteViewGroup.scaleY = scaleY
-//                this@InfiniteViewGroup.pivotX = 0f
-//                this@InfiniteViewGroup.pivotY = 0f
+
+                val oldTranslationX = (1 - scaleX) * pivotX
+                val oldTranslationY = (1 - scaleY) * pivotY
+
+                val tempPivotX = oldTranslationX + newPivotX
+                val tempPivotY = oldTranslationY + newPivotY
+
+                val newTranslationX = (1 - newScaleX / scaleX) * tempPivotX
+                val newTranslationY = (1 - newScaleY / scaleY) * tempPivotY
+
+                val finalTranslationX = oldTranslationX + newTranslationX
+                val finalTranslationY = oldTranslationY + newTranslationY
+
+                val finalPivotX = finalTranslationX / (1 - newScaleX)
+                val finalPivotY = finalTranslationY / (1 - newScaleY)
+
+                scaleX = newScaleX
+                scaleY = newScaleY
+                pivotX = finalPivotX
+                pivotY = finalPivotY
                 Log.d(
                     "manideep",
                     "transX: $translationX, transY: $translationY, pivotX: ${this@InfiniteViewGroup.pivotX}, pivotY: ${this@InfiniteViewGroup.pivotY} "
@@ -90,6 +106,9 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
                     gestureEditingListener
                 )
             )
+//            layoutParams = LayoutParams(1000, 1000)
+//            translationX = (displayWidth - 1000) / 2f
+//            translationY = (displayHeight - 1000) / 2f
         }
 //        post { layoutParams = LayoutParams(MaxViewDrawingInt.MAX_WIDTH, MaxViewDrawingInt.MAX_HEIGHT) }
     }
