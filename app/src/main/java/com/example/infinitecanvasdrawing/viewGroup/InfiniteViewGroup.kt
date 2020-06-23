@@ -34,6 +34,7 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
                 translationY += diffY
                 visibleLeft += diffX
                 visibleTop += diffY
+                Log.d("manideep","transX: $diffX, transY: $diffY")
             }
 
             override fun performActionUp() {

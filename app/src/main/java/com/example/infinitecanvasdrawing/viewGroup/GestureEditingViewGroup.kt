@@ -9,8 +9,12 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.example.infinitecanvasdrawing.utils.MathUtil
 
-internal class GestureEditingViewGroup(context: Context, private val gestureEditingListener: GestureEditingListener?) : FrameLayout(context) {
+internal class GestureEditingViewGroup(
+    context: Context,
+    private val gestureEditingListener: GestureEditingListener?
+) : FrameLayout(context) {
     constructor(context: Context) : this(context, null)
+
     private lateinit var editMode: EditMode
 
 
@@ -30,32 +34,38 @@ internal class GestureEditingViewGroup(context: Context, private val gestureEdit
         when (event.actionMasked) {
 
             MotionEvent.ACTION_DOWN -> {
-//                Log.d(
-//                    "manideep",
-//                    "Action_Down: ${event.actionIndex}, rawX: ${event.rawX}, rawY: ${event.rawY}"
-//                )
-                previousEventX = event.rawX
-                previousEventY = event.rawY
+                previousEventX = event.x
+                previousEventY = event.y
                 editMode = EditMode.DRAG
             }
             MotionEvent.ACTION_MOVE -> {
                 when (editMode) {
                     EditMode.DRAG -> {
-                        val diffX = event.rawX - previousEventX
-                        val diffY = event.rawY - previousEventY
+                        val diffX = event.x - previousEventX
+                        val diffY = event.y - previousEventY
                         gestureEditingListener?.performTranslation(diffX, diffY)
-                        previousEventX = event.rawX
-                        previousEventY = event.rawY
+                        previousEventX = event.x
+                        previousEventY = event.y
                     }
                     EditMode.ZOOM -> {
                         // TODO
-                        val firstPoint = PointF(event.getRawX(0), event.getRawY(0))
-                        val secondPoint = PointF(event.getRawX(1), event.getRawY(1))
+                        val firstPoint = PointF(event.getX(0), event.getY(0))
+                        val secondPoint = PointF(event.getX(1), event.getY(1))
                         val midPoint = MathUtil.getMidPoint(firstPoint, secondPoint)
-                        val newDistance = MathUtil.distanceBetweenPoints(firstPoint.x, firstPoint.y, secondPoint.x, secondPoint.y)
+                        val newDistance = MathUtil.distanceBetweenPoints(
+                            firstPoint.x,
+                            firstPoint.y,
+                            secondPoint.x,
+                            secondPoint.y
+                        )
                         val newScale = newDistance / initialZoomDistance
-                        Log.d("manideep", "p1: $firstPoint, p2: $secondPoint, newScale: $newScale")
-                        gestureEditingListener?.performActionZoom(newScale, newScale, midPoint.x, midPoint.y)
+//                        Log.d("manideep", "p1: $firstPoint, p2: $secondPoint, newScale: $newScale")
+                        gestureEditingListener?.performActionZoom(
+                            newScale,
+                            newScale,
+                            midPoint.x,
+                            midPoint.y
+                        )
                         previousScale = newScale
                     }
                 }
@@ -63,17 +73,17 @@ internal class GestureEditingViewGroup(context: Context, private val gestureEdit
             }
 
             MotionEvent.ACTION_UP -> {
-//                Log.d("manideep", "Action_Up: ${event.actionIndex}")
                 gestureEditingListener?.performActionUp()
             }
             MotionEvent.ACTION_POINTER_DOWN -> {
-//                Log.d(
-//                    "manideep",
-//                    "Action_Pointer_Down: ${event.actionIndex}, rawX: ${event.rawX}, rawY: ${event.rawY}"
-//                )
                 editMode = EditMode.ZOOM
                 if (event.pointerCount == 2) {
-                    initialZoomDistance = MathUtil.distanceBetweenPoints(event.getRawX(0), event.getRawY(0), event.getRawX(1), event.getRawY(1))
+                    initialZoomDistance = MathUtil.distanceBetweenPoints(
+                        event.getX(0),
+                        event.getY(0),
+                        event.getX(1),
+                        event.getY(1)
+                    )
                 }
 
             }
@@ -81,8 +91,9 @@ internal class GestureEditingViewGroup(context: Context, private val gestureEdit
             MotionEvent.ACTION_POINTER_UP -> {
                 if (event.pointerCount == 2) {
                     editMode = EditMode.DRAG
-                    previousEventX = event.rawX
-                    previousEventY = event.rawY
+                    val actionIndex = event.actionIndex
+                    previousEventX = if (actionIndex == 0) event.getX(1) else event.x
+                    previousEventY = if (actionIndex == 0) event.getY(1) else event.y
 
                 }
             }
