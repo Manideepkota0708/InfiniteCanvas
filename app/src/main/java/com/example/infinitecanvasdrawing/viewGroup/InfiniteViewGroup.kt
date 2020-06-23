@@ -11,30 +11,19 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
     private var displayWidth = -1
     private var displayHeight = -1
 
-
-    private var visibleLeft = 0f
-    private var visibleTop = 0f
-    private var visibleWidth = 0f
-    private var visibleHeight = 0f
-
     private val paint = Paint()
 
     init {
         paint.color = Color.RED
         paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 5f
+        paint.strokeWidth = 500000f
         paint.isAntiAlias = true
         paint.isDither = true
-//        (layoutParams as LayoutParams).gravity = Gravity.CENTER
-//        setBackgroundColor(Color.argb(125, 200, 25, 11))
         setBackgroundColor(Color.TRANSPARENT)
         val gestureEditingListener = object : GestureEditingListener {
             override fun performTranslation(diffX: Float, diffY: Float) {
                 translationX += diffX
                 translationY += diffY
-                visibleLeft += diffX
-                visibleTop += diffY
-                Log.d("manideep", "transX: $diffX, transY: $diffY")
             }
 
             override fun performActionUp() {
@@ -106,9 +95,10 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
                     gestureEditingListener
                 )
             )
-//            layoutParams = LayoutParams(1000, 1000)
-//            translationX = (displayWidth - 1000) / 2f
-//            translationY = (displayHeight - 1000) / 2f
+            layoutParams = LayoutParams(MaxViewDrawingInt.MAX_WIDTH , MaxViewDrawingInt.MAX_HEIGHT)
+            layoutParams = LayoutParams(MaxViewDrawingInt.MAX_WIDTH, MaxViewDrawingInt.MAX_HEIGHT)
+            translationX = (displayWidth - MaxViewDrawingInt.MAX_WIDTH) / 2f
+            translationY = (displayHeight - MaxViewDrawingInt.MAX_WIDTH) / 2f
         }
 //        post { layoutParams = LayoutParams(MaxViewDrawingInt.MAX_WIDTH, MaxViewDrawingInt.MAX_HEIGHT) }
     }
@@ -134,11 +124,6 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
             displayWidth = width
             displayHeight = height
         }
-    }
-
-    override fun setLayoutParams(params: ViewGroup.LayoutParams?) {
-        val x = 0f
-        super.setLayoutParams(params)
     }
 
     object MaxViewDrawingInt {
