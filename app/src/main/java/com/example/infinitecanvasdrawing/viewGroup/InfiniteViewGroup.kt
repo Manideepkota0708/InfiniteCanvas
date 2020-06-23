@@ -73,11 +73,11 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
                 newPivotY: Float
             ) {
 
-                val oldTranslationX = (1 - scaleX) * pivotX
-                val oldTranslationY = (1 - scaleY) * pivotY
+                val oldTranslationX = translationX + (1 - scaleX) * pivotX
+                val oldTranslationY = translationY + (1 - scaleY) * pivotY
 
-                val tempPivotX = oldTranslationX + newPivotX
-                val tempPivotY = oldTranslationY + newPivotY
+                val tempPivotX = newPivotX - oldTranslationX
+                val tempPivotY = newPivotY - oldTranslationY
 
                 val newTranslationX = (1 - newScaleX / scaleX) * tempPivotX
                 val newTranslationY = (1 - newScaleY / scaleY) * tempPivotY
@@ -85,8 +85,8 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
                 val finalTranslationX = oldTranslationX + newTranslationX
                 val finalTranslationY = oldTranslationY + newTranslationY
 
-                val finalPivotX = finalTranslationX / (1 - newScaleX)
-                val finalPivotY = finalTranslationY / (1 - newScaleY)
+                val finalPivotX = (finalTranslationX - translationX) / (1 - newScaleX)
+                val finalPivotY = (finalTranslationY - translationY) / (1 - newScaleY)
 
                 scaleX = newScaleX
                 scaleY = newScaleY
@@ -94,7 +94,7 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
                 pivotY = finalPivotY
                 Log.d(
                     "manideep",
-                    "transX: $translationX, transY: $translationY, pivotX: ${this@InfiniteViewGroup.pivotX}, pivotY: ${this@InfiniteViewGroup.pivotY} "
+                    "transX: $translationX, transY: $translationY, pivotX: ${this@InfiniteViewGroup.pivotX}, pivotY: ${this@InfiniteViewGroup.pivotY}, scaleX: $scaleX, scaleY: $scaleY "
                 )
                 Log.d("manideep", "left: $left, top: $top, width: $width, height: $height")
             }
@@ -124,6 +124,7 @@ class InfiniteViewGroup(context: Context) : FrameLayout(context) {
         canvas.drawLine(width.toFloat(), height.toFloat(), 0f, height.toFloat(), paint)
         canvas.drawLine(0f, height.toFloat(), 0f, 0f, paint)
         canvas.drawLine(0f, 0f, width.toFloat(), height.toFloat(), paint)
+        canvas.drawPoint(width / 2f, height / 3f, paint)
 
     }
 
