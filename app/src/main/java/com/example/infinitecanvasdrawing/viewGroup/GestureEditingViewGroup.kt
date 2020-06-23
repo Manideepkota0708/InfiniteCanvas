@@ -21,6 +21,7 @@ internal class GestureEditingViewGroup(
     private var previousEventX = 0f
     private var previousEventY = 0f
     private var previousScale = 1f
+    private var previousRenderedScale = 1f
     private var initialZoomDistance = 1f
 
 
@@ -58,7 +59,7 @@ internal class GestureEditingViewGroup(
                             secondPoint.x,
                             secondPoint.y
                         )
-                        val newScale = newDistance / initialZoomDistance
+                        val newScale = (newDistance / initialZoomDistance) * previousRenderedScale
 //                        Log.d("manideep", "p1: $firstPoint, p2: $secondPoint, newScale: $newScale")
                         if (newScale != previousScale) {
                             gestureEditingListener?.performActionZoom(
@@ -86,6 +87,7 @@ internal class GestureEditingViewGroup(
                         event.getX(1),
                         event.getY(1)
                     )
+                    previousScale = 1f
                 }
 
             }
@@ -96,6 +98,7 @@ internal class GestureEditingViewGroup(
                     val actionIndex = event.actionIndex
                     previousEventX = if (actionIndex == 0) event.getX(1) else event.x
                     previousEventY = if (actionIndex == 0) event.getY(1) else event.y
+                    previousRenderedScale = previousScale
 
                 }
             }
